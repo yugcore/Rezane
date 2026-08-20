@@ -92,11 +92,13 @@ body {
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px minmax(0, 1fr);
-  align-items: stretch;
+  grid-template-columns: 1fr 340px 1fr;
+  align-items: center;
+  justify-items: center;
   position: relative;
   background: #000000;
   overflow: hidden;
+  padding: 24px 32px 64px 32px;
 }
 
 /* =========================================================
@@ -105,7 +107,7 @@ body {
 .center-anchor {
   grid-column: 2;
   width: 340px;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -339,50 +341,56 @@ body {
 }
 
 /* =========================================================
-   FLANKING WINGS (LEFT WING in COL 1, RIGHT WING in COL 3)
+   FLANKING WINGS / SIDE TAB BOXES (LEFT in COL 1, RIGHT in COL 3)
    ========================================================= */
 .wing {
-  height: 100vh;
-  background: #090909;
+  width: 480px;
+  max-width: 100%;
+  height: min(620px, calc(100vh - 120px));
+  background: #0a0a0a;
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.15);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  width: 100%;
+  z-index: 20;
 }
 
 /* LEFT WING */
 .left-wing {
   grid-column: 1;
+  justify-self: end;
+  margin-right: 32px;
   opacity: 0;
   pointer-events: none;
-  border-right: 1px solid transparent;
-  transform: translateX(-40px);
+  transform: translateX(-30px) scale(0.98);
   transition: opacity 0.25s ease, transform 0.25s var(--ease), border-color 0.25s ease;
 }
 
 .app-viewport.left-open .left-wing {
   opacity: 1;
   pointer-events: auto;
-  border-right: 1px solid var(--panel-border);
-  transform: translateX(0);
+  border-color: var(--panel-border-hover);
+  transform: translateX(0) scale(1);
 }
 
 /* RIGHT WING */
 .right-wing {
   grid-column: 3;
+  justify-self: start;
+  margin-left: 32px;
   opacity: 0;
   pointer-events: none;
-  border-left: 1px solid transparent;
-  transform: translateX(40px);
+  transform: translateX(30px) scale(0.98);
   transition: opacity 0.25s ease, transform 0.25s var(--ease), border-color 0.25s ease;
 }
 
 .app-viewport.right-open .right-wing {
   opacity: 1;
   pointer-events: auto;
-  border-left: 1px solid var(--panel-border);
-  transform: translateX(0);
+  border-color: var(--panel-border-hover);
+  transform: translateX(0) scale(1);
 }
 
 /* WING TOP NAVIGATION & TAB BAR */
@@ -1284,4 +1292,55 @@ body {
 
 .send-btn:hover {
   background: #e0e0e0;
+}
+
+/* =========================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================= */
+@media (max-width: 1380px) {
+  .wing {
+    width: 420px;
+  }
+  .left-wing {
+    margin-right: 16px;
+  }
+  .right-wing {
+    margin-left: 16px;
+  }
+  .app-viewport {
+    padding: 20px 16px 64px 16px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .app-viewport {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    align-items: center;
+    justify-items: center;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
+    padding: 24px 16px 80px 16px;
+    gap: 20px;
+  }
+  .center-anchor {
+    grid-column: 1;
+    height: auto;
+    padding: 20px 10px;
+  }
+  .left-wing {
+    grid-column: 1;
+    justify-self: center;
+    margin-right: 0;
+    width: 100%;
+    max-width: 480px;
+  }
+  .right-wing {
+    grid-column: 1;
+    justify-self: center;
+    margin-left: 0;
+    width: 100%;
+    max-width: 480px;
+  }
 }
