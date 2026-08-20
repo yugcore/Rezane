@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REZANE — AI Desktop Assistant</title>
+<style>
+  :root {
+    --bg: #000000;
+    --panel: #0a0a0a;
+    --panel-alt: #111111;
+    --panel-border: #222222;
+    --panel-border-hover: #444444;
+    --panel-border-focus: #ffffff;
+    --divider: #181818;
+
+    --text-primary: #ffffff;
+    --text-secondary: #999999;
+    --text-tertiary: #555555;
+    --text-muted: #333333;
+
+    --mono-white: #ffffff;
+    --mono-silver: #e0e0e0;
+    --mono-grey-light: #cccccc;
+    --mono-grey-mid: #777777;
+    --mono-grey-dark: #222222;
+    --mono-black: #000000;
+    
+    --radius-lg: 0px;
+    --radius-md: 0px;
+    --radius-sm: 0px;
+    --radius-xs: 0px;
+    --radius-pill: 0px;
+
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body { background-color: var(--bg); display: flex; position: relative; }
+  .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+  ::selection { background: #ffffff; color: #000000; }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: #000000; }
+  ::-webkit-scrollbar-thumb { background: #242424; border-radius: 0px; }
+  ::-webkit-scrollbar-thumb:hover { background: #444444; }
+
+  /* App Viewport: Fixed Center Orb + Dual Flanking Wings */
+  .app-viewport {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px minmax(0, 1fr);
+    align-items: stretch;
+    position: relative;
+    background: #000000;
+    overflow: hidden;
+  }
+
+  /* Persistent Center Anchor (Permanently Stationed in Col 2 - Never Moves) */
+  .center-anchor {
+    grid-column: 2;
+    width: 340px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px 14px;
+    z-index: 10;
+    position: relative;
+  }
+
+  .orb-wrap {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: orbBreathe 4.5s ease-in-out infinite;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  @keyframes orbBreathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+
+  .orb-glow {
+    position: absolute;
+    inset: -30px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 70%);
+    animation: glowPulse 4.5s ease-in-out infinite;
+    pointer-events: none;
+    transition: background 0.5s ease;
+    display: block;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  .orb-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 1.5px;
+    background: conic-gradient(from 0deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.03) 40%);
+    animation: ringRotate 7s linear infinite;
+    border: none;
+  }
+
+  .orb-ring::after {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    border-radius: 50%;
+    background: var(--bg);
+  }
+
+  @keyframes ringRotate {
+    to { transform: rotate(360deg); }
+  }
+
+  .orb-core {
+    position: absolute;
+    inset: 13px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 38%, #1c1c1c, #060606 75%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
+  }
+
+  .orb-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    color: var(--mono-white);
+    margin-left: 0.24em;
+  }
+
+  .orb-subtitle {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    margin-left: 0.32em;
+    text-transform: uppercase;
+  }
+
+  .listening-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #0a0a0a;
+    border: 1px solid #333333;
+    padding: 8px 18px;
+    border-radius: 0px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    max-width: 90%;
+    text-align: center;
+  }
+
+  .listening-pill:hover, .listening-pill.active { border-color: #ffffff; }
+  .mic-icon-wrap { position: relative; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .mic-icon-wrap svg { width: 13px; height: 13px; stroke: var(--mono-white); z-index: 2; position: relative; }
+  .mic-ping { position: absolute; inset: -4px; border: 1px solid var(--mono-white); animation: micPing 1.8s ease-out infinite; }
+  @keyframes micPing { 0% { transform: scale(0.7); opacity: 0.8; } 100% { transform: scale(1.5); opacity: 0; } }
+  .listening-text { font-size: 11.5px; font-weight: 600; color: var(--mono-white); letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Minimalist Bottom Dock */
+  .hud-dock {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #0a0a0a;
+    border: 1px solid #222222;
+    padding: 4px 6px;
+    z-index: 50;
+  }
+
+  .hud-dock-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    padding: 6px 11px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .hud-dock-btn svg { width: 12px; height: 12px; stroke: var(--text-secondary); }
+  .hud-dock-btn:hover { background: #141414; border-color: #333333; color: #ffffff; }
+  .hud-dock-btn:hover svg { stroke: #ffffff; }
+  .hud-dock-btn.active { background: #ffffff; color: #000000; border-color: #ffffff; }
+  .hud-dock-btn.active svg { stroke: #000000; }
+  .hud-dock-divider { width: 1px; height: 14px; background: #222222; }
+
+  /* Flanking Wings (Left in Col 1, Right in Col 3) */
+  .wing {
+    height: 100vh;
+    background: #090909;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  /* LEFT WING */
+  .left-wing {
+    grid-column: 1;
+    opacity: 0;
+    pointer-events: none;
+    border-right: 1px solid transparent;
+    transform: translateX(-40px);
+    transition: opacity 0.25s ease, transform 0.25s var(--ease), border-color 0.25s ease;
+  }
+
+  .app-viewport.left-open .left-wing {
+    opacity: 1;
+    pointer-events: auto;
+    border-right: 1px solid var(--panel-border);
+    transform: translateX(0);
+  }
+
+  /* RIGHT WING */
+  .right-wing {
+    grid-column: 3;
+    opacity: 0;
+    pointer-events: none;
+    border-left: 1px solid transparent;
+    transform: translateX(40px);
+    transition: opacity 0.25s ease, transform 0.25s var(--ease), border-color 0.25s ease;
+  }
+
+  .app-viewport.right-open .right-wing {
+    opacity: 1;
+    pointer-events: auto;
+    border-left: 1px solid var(--panel-border);
+    transform: translateX(0);
+  }
+
+  .wing-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #0d0d0d;
+    border-bottom: 1px solid var(--divider);
+    flex-shrink: 0;
+    height: 44px;
+  }
+
+  .wing-tabs { display: flex; align-items: center; gap: 4px; overflow-x: auto; }
+  .wing-tab-btn {
+    display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+    background: transparent; border: 1px solid transparent; color: var(--text-secondary);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+  }
+  .wing-tab-btn svg { width: 13px; height: 13px; stroke: var(--text-secondary); }
+  .wing-tab-btn:hover { background: #141414; color: var(--mono-white); border-color: #333333; }
+  .wing-tab-btn.active { background: #181818; color: #ffffff; border-color: #444444; border-bottom-color: #ffffff; }
+  .wing-tab-btn.active svg { stroke: #ffffff; }
+
+  .wing-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .wing-close-btn {
+    display: flex; align-items: center; justify-content: center; width: 26px; height: 26px;
+    background: #141414; border: 1px solid #282828; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.15s ease;
+  }
+  .wing-close-btn:hover { background: #ffffff; color: #000000; border-color: #ffffff; }
+  .wing-close-btn svg { width: 14px; height: 14px; stroke: currentColor; }
+
+  .wing-body { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; padding: 14px 16px; overflow: hidden; }
+  .tab-pane { display: none; flex-direction: column; width: 100%; height: 100%; min-height: 0; overflow: hidden; }
+  .tab-pane.active { display: flex; }
+
+  /* App Icons & Brand Colors */
+  .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .app-icon-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;
+    padding: 14px 6px 10px; border: 1px solid #1a1a1a; background: #0d0d0d;
+    transition: transform 0.15s var(--ease), background 0.15s ease;
+  }
+  .app-icon-wrap:hover { transform: translateY(-2px); background: #141414; border-color: #444444; }
+  .app-icon { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #ffffff; border: 1px solid transparent; }
+  .app-icon svg { width: 22px; height: 22px; stroke: #ffffff; }
+  .app-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-align: center; }
+  .app-icon-wrap:hover .app-label { color: var(--mono-white); }
+
+  .bg-vscode { background: #007acc; border-color: #0088e8; }
+  .bg-terminal { background: #1e1e2e; border-color: #313244; }
+  .bg-zegfx { background: #059669; border-color: #10b981; }
+  .bg-unreal { background: #0e1118; border-color: #2a2e3d; }
+  .bg-godot { background: #478cbf; border-color: #5c9fd4; }
+  .bg-files { background: #d97706; border-color: #f59e0b; }
+  .bg-youtube { background: #cc0000; border-color: #e60000; }
+  .bg-google { background: #4285f4; border-color: #5c9aff; }
+  .bg-github { background: #24292e; border-color: #3f4448; }
+  .bg-docs { background: #2563eb; border-color: #3b82f6; }
+  .bg-reddit { background: #ff4500; border-color: #ff6a33; }
+  .bg-stack { background: #f48024; border-color: #f69c54; }
+  .bg-notion { background: #2f3437; border-color: #474c50; }
+
+  .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .qa-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 8px;
+    border: 1px solid var(--panel-border); background: #111111; color: var(--text-secondary);
+    font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s var(--ease);
+  }
+  .qa-btn svg { width: 13px; height: 13px; stroke: var(--text-secondary); }
+  .qa-btn:hover { border-color: var(--mono-white); color: var(--mono-white); background: #1a1a1a; }
+  .qa-btn:hover svg { stroke: var(--mono-white); }
+
+  /* Active Windows */
+  .windows-list { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; overflow-y: auto; gap: 4px; }
+  .window-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    background: #0d0d0d; border: 1px solid #1a1a1a; border-left: 2px solid transparent; cursor: pointer;
+  }
+  .window-row:hover { background: #141414; border-color: #333333; border-left-color: var(--mono-white); }
+  .win-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+  .win-icon svg { width: 14px; height: 14px; stroke: #ffffff; }
+  .win-info { flex: 1; min-width: 0; }
+  .win-title { font-size: 11.5px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .win-path { font-size: 10px; color: var(--text-tertiary); font-family: "SFMono-Regular", Consolas, monospace; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .win-tag { font-size: 9.5px; font-weight: 700; padding: 2px 6px; background: #141414; border: 1px solid #282828; color: var(--text-secondary); text-transform: uppercase; }
+  .windows-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; margin-top: auto; border-top: 1px solid var(--divider); }
+  .footer-note { font-size: 10.5px; color: var(--text-tertiary); }
+  .btn-outline { font-size: 11px; font-weight: 600; color: var(--text-secondary); background: #111111; border: 1px solid var(--panel-border); padding: 5px 12px; cursor: pointer; }
+  .btn-outline:hover { border-color: var(--mono-white); color: var(--mono-white); background: #1a1a1a; }
+
+  /* Git Status */
+  .git-header-row { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 10px; }
+  .git-left { display: flex; align-items: center; gap: 8px; }
+  .branch-pill { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--mono-white); background: #111111; border: 1px solid #303030; padding: 3px 8px; font-family: "SFMono-Regular", Consolas, monospace; text-decoration: none; }
+  .git-counts { display: flex; gap: 10px; font-size: 10.5px; font-weight: 600; font-family: "SFMono-Regular", Consolas, monospace; }
+  .ahead { color: var(--mono-white); }
+  .behind { color: var(--text-tertiary); }
+  .git-files-container { flex: 1 1 0; min-height: 0; overflow-y: auto; margin: 6px 0; }
+  .git-section-label { font-size: 10px; font-weight: 700; color: var(--text-tertiary); letter-spacing: 0.12em; text-transform: uppercase; margin: 6px 0 4px; }
+  .git-file-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 6px; border-bottom: 1px solid #141414; cursor: pointer; }
+  .git-file-row:hover { background: #141414; }
+  .git-file-name { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); font-family: "SFMono-Regular", Consolas, monospace; }
+  .git-badge { font-size: 9.5px; font-weight: 700; padding: 2px 5px; font-family: "SFMono-Regular", Consolas, monospace; }
+  .badge-m { color: var(--mono-white); background: #242424; border: 1px solid #383838; }
+  .git-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; border-top: 1px solid var(--divider); }
+  .changes-summary { font-size: 10.5px; color: var(--text-tertiary); font-family: "SFMono-Regular", Consolas, monospace; }
+  .plus { color: #ffffff; font-weight: 700; }
+  .btn-primary { font-size: 11px; font-weight: 700; color: #000000; background: #ffffff; border: 1px solid #ffffff; padding: 5px 14px; cursor: pointer; }
+
+  /* Browser */
+  .browser-nav { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; flex-shrink: 0; }
+  .nav-icon-btn { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: #111111; border: 1px solid var(--panel-border); cursor: pointer; }
+  .nav-icon-btn svg { width: 12px; height: 12px; stroke: var(--text-secondary); }
+  .nav-icon-btn:hover { background: var(--panel-alt); border-color: var(--panel-border-hover); }
+  .nav-icon-btn:hover svg { stroke: var(--mono-white); }
+  .url-bar { flex: 1; display: flex; align-items: center; gap: 8px; background: #000000; border: 1px solid var(--panel-border); padding: 5px 10px; }
+  .url-bar:focus-within { border-color: var(--mono-white); }
+  .url-bar svg { width: 12px; height: 12px; stroke: var(--text-tertiary); }
+  .url-bar input { flex: 1; background: none; border: none; outline: none; color: var(--text-primary); font-size: 11.5px; }
+  .tab-row { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; border-bottom: 1px solid var(--divider); overflow-x: auto; flex-shrink: 0; }
+  .tab { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; color: var(--mono-white); padding: 5px 10px; border-bottom: 2px solid var(--mono-white); cursor: pointer; white-space: nowrap; background: rgba(255, 255, 255, 0.04); }
+  .tab-dot { width: 4px; height: 4px; background: var(--mono-white); }
+  .tab-add { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; background: #000000; border: 1px solid var(--panel-border); cursor: pointer; }
+  .tab-add svg { width: 11px; height: 11px; stroke: var(--text-secondary); }
+  .browser-viewport { position: relative; flex: 1 1 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+  .browser-shortcuts-view { flex: 1 1 0; overflow-y: auto; display: flex; flex-direction: column; }
+  .shortcut-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; flex: 1; align-content: start; }
+  .shortcut-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #0d0d0d; border: 1px solid var(--panel-border); padding: 12px 6px; min-height: 74px; cursor: pointer; transition: all 0.15s var(--ease); }
+  .shortcut-card:hover { border-color: var(--mono-white); transform: translateY(-2px); background: #141414; }
+  .shortcut-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+  .shortcut-icon svg { width: 16px; height: 16px; stroke: #ffffff; fill: none; }
+  .shortcut-icon svg[fill] { fill: #ffffff; }
+  .shortcut-label { font-size: 10.5px; color: var(--text-secondary); font-weight: 500; }
+  .shortcut-card:hover .shortcut-label { color: var(--mono-white); }
+
+  .browser-frame-view { position: relative; display: none; flex-direction: column; width: 100%; height: 100%; background: #000000; border: 1px solid var(--panel-border); }
+  .browser-frame-view.active { display: flex; }
+  .browser-frame { width: 100%; height: 100%; border: none; background: #000000; }
+
+  /* AI Chat */
+  .chat-scroll { display: flex; flex-direction: column; gap: 12px; flex: 1 1 0; min-height: 0; overflow-y: auto; padding-right: 6px; margin-bottom: 10px; }
+  .msg { border-left: 2px solid #282828; padding-left: 10px; }
+  .msg-meta { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .msg-time { font-size: 9.5px; color: var(--text-tertiary); font-family: "SFMono-Regular", Consolas, monospace; }
+  .msg-role { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .role-you { color: var(--text-secondary); }
+  .role-assistant { color: var(--mono-white); }
+  .msg-text { font-size: 12px; color: var(--text-primary); line-height: 1.45; }
+  .checklist { margin-top: 8px; background: #000000; border: 1px solid var(--panel-border); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+  .check-item { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-secondary); }
+  .check-item.active { color: var(--mono-white); font-weight: 600; }
+  .check-icon svg { width: 14px; height: 14px; stroke: var(--mono-white); }
+  .spinner { width: 12px; height: 12px; border: 2px solid #222222; border-top-color: var(--mono-white); animation: spin 0.75s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .chat-input-row { display: flex; align-items: center; gap: 8px; background: #000000; border: 1px solid var(--panel-border); padding: 5px 5px 5px 12px; margin-top: auto; }
+  .chat-input-row:focus-within { border-color: var(--mono-white); }
+  .chat-input-row input { flex: 1; background: none; border: none; outline: none; color: var(--text-primary); font-size: 12px; }
+  .send-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: #ffffff; border: none; cursor: pointer; }
+  .send-btn svg { width: 13px; height: 13px; stroke: #000000; }
+</style>
+</head>
+<body>
+
+<div class="app-viewport" id="appViewport">
+
+  <!-- ===================== LEFT WING ===================== -->
+  <aside class="wing left-wing" id="leftWing">
+    <div class="wing-topbar">
+      <div class="wing-tabs">
+        <button class="wing-tab-btn active" data-wing="left" data-tab="apps">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Apps
+        </button>
+        <button class="wing-tab-btn" data-wing="left" data-tab="windows">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Windows
+        </button>
+        <button class="wing-tab-btn" data-wing="left" data-tab="git">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+          Git
+        </button>
+      </div>
+      <div class="wing-actions">
+        <button class="wing-close-btn" id="closeLeftWing" title="Close Left Panel (ESC)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>
+
+    <div class="wing-body" id="leftWingBody">
+      <!-- Apps Pane -->
+      <div class="tab-pane active" data-pane="apps">
+        <div class="app-grid">
+          <div class="app-icon-wrap" onclick="alert('Launching VS Code')">
+            <div class="app-icon bg-vscode"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M17 3 7 12l10 9 3-1.5V4.5L17 3Z"/><path d="M7 12 3 9v6l4-3Z"/></svg></div>
+            <div class="app-label">VS Code</div>
+          </div>
+          <div class="app-icon-wrap" onclick="alert('Launching Terminal')">
+            <div class="app-icon bg-terminal"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="4 6 9 12 4 18"/><line x1="12" y1="18" x2="20" y2="18"/></svg></div>
+            <div class="app-label">Terminal</div>
+          </div>
+          <div class="app-icon-wrap" onclick="alert('Launching ZeGFX')">
+            <div class="app-icon bg-zegfx"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12 4 7.5M12 12v9M12 12l8-4.5"/></svg></div>
+            <div class="app-label">ZeGFX</div>
+          </div>
+          <div class="app-icon-wrap" onclick="alert('Launching Unreal')">
+            <div class="app-icon bg-unreal"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M6 13c1-3 2.5-5 3.5-5s.7 3 1 5 1 5 1.8 5S14 15 15 12s2-4.2 3-4" stroke-linecap="round"/></svg></div>
+            <div class="app-label">Unreal</div>
+          </div>
+          <div class="app-icon-wrap" onclick="alert('Launching Godot')">
+            <div class="app-icon bg-godot"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="8.5" cy="9" r="1"/><circle cx="15.5" cy="9" r="1"/><path d="M4 13c0-5 3.5-8.5 8-8.5s8 3.5 8 8.5-2 6-4 6c-1.2 0-1.5-1-2-1.8-.4-.7-.9-1.2-2-1.2s-1.6.5-2 1.2c-.5.8-.8 1.8-2 1.8-2 0-4-1-4-6Z"/></svg></div>
+            <div class="app-label">Godot</div>
+          </div>
+          <div class="app-icon-wrap" onclick="alert('Launching Explorer')">
+            <div class="app-icon bg-files"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></div>
+            <div class="app-label">Explorer</div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <div class="qa-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>New File</div>
+          <div class="qa-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Terminal</div>
+        </div>
+      </div>
+
+      <!-- Windows Pane -->
+      <div class="tab-pane" data-pane="windows">
+        <div class="windows-list">
+          <div class="window-row">
+            <div class="win-icon bg-google"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div>
+            <div class="win-info"><div class="win-title">REZANE — Google Chrome</div><div class="win-path">chrome.exe</div></div>
+            <div class="win-tag">BROWSER</div>
+          </div>
+        </div>
+        <div class="windows-footer"><div class="footer-note">1 window active</div><button class="btn-outline">Refresh</button></div>
+      </div>
+
+      <!-- Git Pane -->
+      <div class="tab-pane" data-pane="git">
+        <div class="git-header-row">
+          <div class="git-left"><a class="branch-pill" href="https://github.com/yugcore" target="_blank">main</a></div>
+          <div class="git-counts"><span class="ahead">AHEAD 0</span><span class="behind">BEHIND 0</span></div>
+        </div>
+        <div class="git-files-container">
+          <div class="git-section-label">Modified</div>
+          <div class="git-file-row"><div class="git-file-name">backend/main.py</div><div class="git-badge badge-m">M</div></div>
+        </div>
+        <div class="git-footer"><div class="changes-summary">Changes +0 -0</div><button class="btn-primary">Commit</button></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== PERSISTENT CENTER ANCHOR (ALWAYS VISIBLE) ===================== -->
+  <main class="center-anchor" id="centerAnchor">
+    <div class="orb-wrap" id="mainOrb">
+      <div class="orb-glow"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-core">
+        <div class="orb-title">REZANE</div>
+        <div class="orb-subtitle">AI ASSISTANT</div>
+      </div>
+    </div>
+
+    <div class="listening-pill" id="listeningPill" title="Click or Speak">
+      <div class="mic-icon-wrap">
+        <div class="mic-ping"></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+      </div>
+      <div class="listening-text" id="telemetryText">Ready and waiting for instructions.</div>
+    </div>
+  </main>
+
+  <!-- ===================== RIGHT WING ===================== -->
+  <aside class="wing right-wing" id="rightWing">
+    <div class="wing-topbar">
+      <div class="wing-tabs">
+        <button class="wing-tab-btn active" data-wing="right" data-tab="browser">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Browser
+        </button>
+        <button class="wing-tab-btn" data-wing="right" data-tab="chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Chat
+        </button>
+      </div>
+      <div class="wing-actions">
+        <button class="wing-close-btn" id="closeRightWing" title="Close Right Panel (ESC)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>
+
+    <div class="wing-body" id="rightWingBody">
+      <!-- Browser Pane -->
+      <div class="tab-pane active" data-pane="browser">
+        <div class="browser-nav">
+          <button class="nav-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="nav-icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <div class="url-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search Google or enter URL...">
+          </div>
+        </div>
+
+        <div class="tab-row">
+          <div class="tab"><div class="tab-dot"></div><span>New Tab</span></div>
+        </div>
+
+        <div class="browser-viewport">
+          <div class="browser-shortcuts-view">
+            <div class="shortcut-grid">
+              <div class="shortcut-card">
+                <div class="shortcut-icon bg-youtube"><svg viewBox="0 0 24 24" fill="#ffffff"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
+                <div class="shortcut-label">YouTube</div>
+              </div>
+              <div class="shortcut-card">
+                <div class="shortcut-icon bg-google"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+                <div class="shortcut-label">Google</div>
+              </div>
+              <div class="shortcut-card">
+                <div class="shortcut-icon bg-github"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></div>
+                <div class="shortcut-label">GitHub</div>
+              </div>
+              <div class="shortcut-card">
+                <div class="shortcut-icon bg-docs"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="shortcut-label">Docs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Pane -->
+      <div class="tab-pane" data-pane="chat">
+        <div class="chat-scroll">
+          <div class="msg">
+            <div class="msg-meta"><span class="msg-time">10:42 AM</span><span class="msg-role role-you">You</span></div>
+            <div class="msg-text">Build ZeGFX renderer and run the visual benchmark.</div>
+          </div>
+          <div class="msg">
+            <div class="msg-meta"><span class="msg-time">10:42 AM</span><span class="msg-role role-assistant">Assistant</span></div>
+            <div class="msg-text">Got it. Building ZeGFX renderer...</div>
+            <div class="checklist">
+              <div class="check-item"><div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="8 12.5 11 15.5 16 9"/></svg></div>Configuring project</div>
+              <div class="check-item active"><div class="check-icon"><div class="spinner"></div></div>Building renderer...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-row">
+          <input type="text" placeholder="Ask anything...">
+          <button class="send-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== BOTTOM DOCK ===================== -->
+  <div class="hud-dock">
+    <button class="hud-dock-btn" data-target="apps" title="Apps (Ctrl+K)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Apps
+    </button>
+    <button class="hud-dock-btn" data-target="windows" title="Windows (Ctrl+W)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Windows
+    </button>
+    <button class="hud-dock-btn" data-target="git" title="Git (Ctrl+G)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+      Git
+    </button>
+    <div class="hud-dock-divider"></div>
+    <button class="hud-dock-btn" data-target="browser" title="Browser (Ctrl+B)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Browser
+    </button>
+    <button class="hud-dock-btn" data-target="chat" title="Chat (Ctrl+J)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat
+    </button>
+    <button class="hud-dock-btn" data-target="dashboard" title="Matrix (Ctrl+D)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      Matrix
+    </button>
+    <div class="hud-dock-divider"></div>
+    <button class="hud-dock-btn ctrl-btn" title="Mic" id="micToggleBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+      Mic
+    </button>
+  </div>
+
+</div>
+
+<script>
+  const viewport = document.querySelector('#appViewport');
+
+  function openWing(side, tab) {
+    if (side === 'left') {
+      viewport.classList.add('left-open');
+      document.querySelectorAll('.wing-tab-btn[data-wing="left"]').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === tab));
+      document.querySelectorAll('#leftWingBody .tab-pane').forEach(p => p.classList.toggle('active', p.getAttribute('data-pane') === tab));
+    } else if (side === 'right') {
+      viewport.classList.add('right-open');
+      document.querySelectorAll('.wing-tab-btn[data-wing="right"]').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === tab));
+      document.querySelectorAll('#rightWingBody .tab-pane').forEach(p => p.classList.toggle('active', p.getAttribute('data-pane') === tab));
+    }
+  }
+
+  function closeWing(side) {
+    if (side === 'left') viewport.classList.remove('left-open');
+    if (side === 'right') viewport.classList.remove('right-open');
+  }
+
+  function closeAll() {
+    closeWing('left');
+    closeWing('right');
+  }
+
+  function toggleWing(side, tab) {
+    const isOpen = (side === 'left') ? viewport.classList.contains('left-open') : viewport.classList.contains('right-open');
+    if (isOpen) closeWing(side);
+    else openWing(side, tab);
+  }
+
+  document.querySelectorAll('.wing-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openWing(btn.getAttribute('data-wing'), btn.getAttribute('data-tab'));
+    });
+  });
+
+  document.querySelector('#closeLeftWing').addEventListener('click', () => closeWing('left'));
+  document.querySelector('#closeRightWing').addEventListener('click', () => closeWing('right'));
+
+  document.querySelectorAll('.hud-dock-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-target');
+      if (['apps', 'windows', 'git'].includes(target)) toggleWing('left', target);
+      else if (['browser', 'chat'].includes(target)) toggleWing('right', target);
+      else if (target === 'dashboard') {
+        const isBoth = viewport.classList.contains('left-open') && viewport.classList.contains('right-open');
+        if (isBoth) closeAll();
+        else { openWing('left', 'apps'); openWing('right', 'browser'); }
+      }
+    });
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAll();
+    if (e.ctrlKey && e.key.toLowerCase() === 'b') { e.preventDefault(); toggleWing('right', 'browser'); }
+    if (e.ctrlKey && e.key.toLowerCase() === 'k') { e.preventDefault(); toggleWing('left', 'apps'); }
+    if (e.ctrlKey && e.key.toLowerCase() === 'j') { e.preventDefault(); toggleWing('right', 'chat'); }
+  });
+
+  // Speech Recognition & Mic Controller
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const pill = document.querySelector('#listeningPill');
+  const micBtn = document.querySelector('#micToggleBtn');
+  const telemetry = document.querySelector('#telemetryText');
+  let recognition = null;
+  let isListening = false;
+
+  function toggleListening() {
+    isListening = !isListening;
+    if (isListening) {
+      if (pill) { pill.classList.add('active'); pill.style.borderColor = '#ffffff'; }
+      if (micBtn) micBtn.classList.add('active');
+      if (telemetry) telemetry.textContent = 'Listening...';
+      if (recognition) {
+        try { recognition.start(); } catch(e) {}
+      }
+    } else {
+      if (pill) { pill.classList.remove('active'); pill.style.borderColor = '#333333'; }
+      if (micBtn) micBtn.classList.remove('active');
+      if (telemetry) telemetry.textContent = 'Ready and waiting for instructions.';
+      if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+      }
+    }
+  }
+
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+      let text = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        text += event.results[i][0].transcript;
+      }
+      if (text && telemetry) {
+        telemetry.textContent = `"${text}"`;
+        const t = text.toLowerCase();
+        if (t.includes('browser') || t.includes('youtube') || t.includes('google')) openWing('right', 'browser');
+        else if (t.includes('chat') || t.includes('assistant')) openWing('right', 'chat');
+        else if (t.includes('apps') || t.includes('launch')) openWing('left', 'apps');
+        else if (t.includes('windows')) openWing('left', 'windows');
+        else if (t.includes('git')) openWing('left', 'git');
+        else if (t.includes('close right') || t.includes('hide browser')) closeWing('right');
+        else if (t.includes('close left') || t.includes('hide apps')) closeWing('left');
+        else if (t.includes('close all') || t.includes('minimize') || t.includes('hide all')) closeAll();
+      }
+    };
+
+    recognition.onerror = () => {};
+    recognition.onend = () => {
+      if (isListening) {
+        try { recognition.start(); } catch(e) {}
+      }
+    };
+  }
+
+  if (pill) pill.addEventListener('click', toggleListening);
+  if (micBtn) micBtn.addEventListener('click', toggleListening);
+
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey && e.code === 'Space') || (e.key === 'm' && document.activeElement.tagName !== 'INPUT')) {
+      e.preventDefault();
+      toggleListening();
+    }
+  });
+</script>
+
+</body>
+</html>

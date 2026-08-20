@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REZANE — AI Desktop Assistant</title>
+<link rel="stylesheet" href="/static/styles/dashboard.css">
+</head>
+<body>
+
+<div class="app-viewport" id="appViewport">
+
+  <!-- ===================== LEFT WING (FLANKING LEFT) ===================== -->
+  <aside class="wing left-wing" id="leftWing">
+    <div class="wing-topbar">
+      <div class="wing-tabs">
+        <button class="wing-tab-btn active" data-wing="left" data-tab="apps">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Apps
+        </button>
+        <button class="wing-tab-btn" data-wing="left" data-tab="windows">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Windows
+        </button>
+        <button class="wing-tab-btn" data-wing="left" data-tab="git">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+          Git
+        </button>
+      </div>
+      <div class="wing-actions">
+        <button class="wing-close-btn" id="closeLeftWing" title="Close Left Panel (ESC)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>
+
+    <div class="wing-body" id="leftWingBody">
+      <!-- 1. Apps Tab Pane -->
+      <div class="tab-pane active" data-pane="apps" id="tab-pane-apps">
+        <div class="app-grid">
+          <div class="app-icon-wrap" id="launchVsCode">
+            <div class="app-icon bg-vscode"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3 7 12l10 9 3-1.5V4.5L17 3Z"/><path d="M7 12 3 9v6l4-3Z"/></svg></div>
+            <div class="app-label">VS Code</div>
+          </div>
+          <div class="app-icon-wrap" id="launchTerminal">
+            <div class="app-icon bg-terminal"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 6 9 12 4 18"/><line x1="12" y1="18" x2="20" y2="18"/></svg></div>
+            <div class="app-label">Terminal</div>
+          </div>
+          <div class="app-icon-wrap" id="launchZeGFX">
+            <div class="app-icon bg-zegfx"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12 4 7.5M12 12v9M12 12l8-4.5"/></svg></div>
+            <div class="app-label">ZeGFX</div>
+          </div>
+          <div class="app-icon-wrap" id="launchUnreal">
+            <div class="app-icon bg-unreal"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M6 13c1-3 2.5-5 3.5-5s.7 3 1 5 1 5 1.8 5S14 15 15 12s2-4.2 3-4" stroke-linecap="round"/></svg></div>
+            <div class="app-label">Unreal</div>
+          </div>
+          <div class="app-icon-wrap" id="launchGodot">
+            <div class="app-icon bg-godot"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="9" r="1"/><circle cx="15.5" cy="9" r="1"/><path d="M4 13c0-5 3.5-8.5 8-8.5s8 3.5 8 8.5-2 6-4 6c-1.2 0-1.5-1-2-1.8-.4-.7-.9-1.2-2-1.2s-1.6.5-2 1.2c-.5.8-.8 1.8-2 1.8-2 0-4-1-4-6Z"/></svg></div>
+            <div class="app-label">Godot</div>
+          </div>
+          <div class="app-icon-wrap" id="launchFiles">
+            <div class="app-icon bg-files"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></div>
+            <div class="app-label">Explorer</div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <div class="qa-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>New File</div>
+          <div class="qa-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Terminal</div>
+          <div class="qa-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg>Screenshot</div>
+          <div class="qa-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>Notes</div>
+        </div>
+      </div>
+
+      <!-- 2. Windows Tab Pane -->
+      <div class="tab-pane" data-pane="windows" id="tab-pane-windows">
+        <div class="windows-list" id="windowsList">
+          <div style="padding:12px; color:var(--text-tertiary); font-size:12px;">Discovering active windows...</div>
+        </div>
+        <div class="windows-footer">
+          <div class="footer-note" id="windowsCount">0 windows active</div>
+          <button class="btn-outline" onclick="fetch('/api/windows').then(r=>r.json()).then(d=>renderActiveWindows(d.windows))">Refresh</button>
+        </div>
+      </div>
+
+      <!-- 3. Git Tab Pane -->
+      <div class="tab-pane" data-pane="git" id="tab-pane-git">
+        <div class="git-header-row">
+          <div class="git-left">
+            <a class="branch-pill" id="gitBranch" href="https://github.com/yugcore" target="_blank" title="Open GitHub Profile">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+              main
+            </a>
+          </div>
+          <div class="git-counts">
+            <span class="ahead" id="gitAhead">AHEAD 0</span>
+            <span class="behind" id="gitBehind">BEHIND 0</span>
+          </div>
+        </div>
+        <div class="git-files-container" id="gitFilesList">
+          <div class="git-section-label">Modified</div>
+          <div class="git-file-row"><div class="git-file-name"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>backend/main.py</div><div class="git-badge badge-m">M</div></div>
+        </div>
+        <div class="git-footer">
+          <div class="changes-summary" id="gitChangesSummary">Changes <span class="plus">+0</span> <span class="minus">-0</span></div>
+          <div class="git-actions">
+            <button class="btn-outline" id="stageAllBtn">Stage All</button>
+            <button class="btn-primary" id="commitBtn">Commit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== CENTER ANCHOR (ALWAYS VISIBLE ORB) ===================== -->
+  <main class="center-anchor" id="centerAnchor">
+    <!-- Circular REZANE AI Gradient Orb -->
+    <div class="orb-wrap" id="mainOrb">
+      <div class="orb-glow"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-core">
+        <div class="orb-title">REZANE</div>
+        <div class="orb-subtitle">AI ASSISTANT</div>
+      </div>
+    </div>
+
+    <!-- Live Speech & Telemetry Pill -->
+    <div class="listening-pill" id="listeningPill" title="Click or Press Ctrl+Space / M to Speak">
+      <div class="mic-icon-wrap">
+        <div class="mic-ping"></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+      </div>
+      <div class="listening-text" id="telemetryText">Ready and waiting for instructions.</div>
+    </div>
+  </main>
+
+  <!-- ===================== RIGHT WING (FLANKING RIGHT) ===================== -->
+  <aside class="wing right-wing" id="rightWing">
+    <div class="wing-topbar">
+      <div class="wing-tabs">
+        <button class="wing-tab-btn active" data-wing="right" data-tab="browser">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Browser
+        </button>
+        <button class="wing-tab-btn" data-wing="right" data-tab="chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Chat
+        </button>
+      </div>
+      <div class="wing-actions">
+        <button class="wing-close-btn" id="closeRightWing" title="Close Right Panel (ESC)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>
+
+    <div class="wing-body" id="rightWingBody">
+      <!-- 1. Browser Tab Pane -->
+      <div class="tab-pane active" data-pane="browser" id="tab-pane-browser">
+        <div class="browser-nav">
+          <button class="nav-icon-btn" id="btnBack" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="nav-icon-btn" id="btnForward" title="Forward"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <button class="nav-icon-btn" id="btnReload" title="Reload"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg></button>
+          <div class="url-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="urlInput" placeholder="Search Google or enter URL (e.g. youtube.com, github.com)...">
+          </div>
+          <button class="nav-icon-btn" id="btnGo" title="Navigate"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+
+        <div class="tab-row" id="tabRow">
+          <div class="tab active" data-tab-id="tab-1">
+            <div class="tab-dot"></div>
+            <span class="tab-title" id="browserTabTitle">New Tab</span>
+          </div>
+          <button class="tab-add" id="btnAddTab" title="New Tab"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        </div>
+
+        <div class="browser-viewport">
+          <div class="browser-shortcuts-view" id="browserShortcutsView">
+            <div class="shortcut-grid">
+              <div class="shortcut-card" data-url="https://youtube.com">
+                <div class="shortcut-icon bg-youtube"><svg viewBox="0 0 24 24" fill="#ffffff"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div>
+                <div class="shortcut-label">YouTube</div>
+              </div>
+              <div class="shortcut-card" data-url="https://google.com">
+                <div class="shortcut-icon bg-google"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+                <div class="shortcut-label">Google</div>
+              </div>
+              <div class="shortcut-card" data-url="https://github.com/yugcore">
+                <div class="shortcut-icon bg-github"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></div>
+                <div class="shortcut-label">GitHub</div>
+              </div>
+              <div class="shortcut-card" data-url="https://docs.godotengine.org">
+                <div class="shortcut-icon bg-docs"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                <div class="shortcut-label">Docs</div>
+              </div>
+              <div class="shortcut-card" data-url="https://stackoverflow.com">
+                <div class="shortcut-icon bg-stack"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16v5H6v-5"/><line x1="8" y1="18" x2="16" y2="18"/><line x1="8.5" y1="14.5" x2="15.5" y2="16"/><line x1="10" y1="11" x2="16" y2="14"/></svg></div>
+                <div class="shortcut-label">StackOverflow</div>
+              </div>
+              <div class="shortcut-card" data-url="https://wikipedia.org">
+                <div class="shortcut-icon bg-notion"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/></svg></div>
+                <div class="shortcut-label">Wiki</div>
+              </div>
+              <div class="shortcut-card" data-url="https://news.ycombinator.com">
+                <div class="shortcut-icon bg-reddit"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 22 22 22 12 2"/></svg></div>
+                <div class="shortcut-label">HackerNews</div>
+              </div>
+              <div class="shortcut-card" data-url="https://devdocs.io">
+                <div class="shortcut-icon bg-zegfx"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div>
+                <div class="shortcut-label">DevDocs</div>
+              </div>
+            </div>
+          </div>
+          <div class="browser-frame-view" id="browserFrameView">
+            <iframe class="browser-frame" id="browserFrame" src="about:blank"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Chat Tab Pane -->
+      <div class="tab-pane" data-pane="chat" id="tab-pane-chat">
+        <div class="chat-scroll" id="chatScroll">
+          <div class="msg">
+            <div class="msg-meta"><span class="msg-time">10:42 AM</span><span class="msg-role role-you">You</span></div>
+            <div class="msg-text">Build ZeGFX renderer and run the visual benchmark.</div>
+          </div>
+          <div class="msg">
+            <div class="msg-meta"><span class="msg-time">10:42 AM</span><span class="msg-role role-assistant">Assistant</span></div>
+            <div class="msg-text">Got it. Building ZeGFX renderer...</div>
+            <div class="checklist">
+              <div class="check-item"><div class="check-icon check-done"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12.5 11 15.5 16 9"/></svg></div>Configuring project</div>
+              <div class="check-item"><div class="check-icon check-done"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12.5 11 15.5 16 9"/></svg></div>Compiling shaders</div>
+              <div class="check-item"><div class="check-icon check-done"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12.5 11 15.5 16 9"/></svg></div>Building renderer</div>
+              <div class="check-item active"><div class="check-icon"><div class="spinner"></div></div>Running visual benchmark...</div>
+            </div>
+          </div>
+          <div class="msg">
+            <div class="msg-meta"><span class="msg-time">10:45 AM</span><span class="msg-role role-assistant">Assistant</span></div>
+            <div class="msg-text">Benchmark completed.<br>Results saved to:</div>
+            <div class="result-path mono">tests/results/benchmark_2026-08-20_1955/</div>
+            <br>
+            <div class="open-folder-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2Z"/></svg>Open Results</div>
+          </div>
+        </div>
+
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Ask anything, e.g. 'build ZeGFX', 'check git'...">
+          <button class="send-btn" id="chatSendBtn" title="Send Message">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== BOTTOM DOCK ===================== -->
+  <div class="hud-dock">
+    <button class="hud-dock-btn" data-target="apps" title="Launch Applications (Ctrl+K)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Apps
+    </button>
+    <button class="hud-dock-btn" data-target="windows" title="Active Windows (Ctrl+W)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Windows
+    </button>
+    <button class="hud-dock-btn" data-target="git" title="Git Status & Repository (Ctrl+G)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+      Git
+    </button>
+    <div class="hud-dock-divider"></div>
+    <button class="hud-dock-btn" data-target="browser" title="Embedded Browser (Ctrl+B)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Browser
+    </button>
+    <button class="hud-dock-btn" data-target="chat" title="AI Chat & Assistant (Ctrl+J)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat
+    </button>
+    <button class="hud-dock-btn" data-target="dashboard" title="Toggle Both Wings (Ctrl+D)">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      Matrix
+    </button>
+    <div class="hud-dock-divider"></div>
+    <button class="hud-dock-btn ctrl-btn" title="Mic (Ctrl+Space)" id="micToggleBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+      Mic
+    </button>
+  </div>
+
+</div>
+
+<!-- ===================== JAVASCRIPT MODULES ===================== -->
+<script src="/static/js/websocket.js"></script>
+<script src="/static/js/orb.js"></script>
+<script src="/static/js/voice.js"></script>
+<script src="/static/js/hud_manager.js"></script>
+<script src="/static/js/app.js"></script>
+
+</body>
+</html>
